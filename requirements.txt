@@ -1,0 +1,5 @@
+lark
+pandas
+matplotlib
+typer
+rich

@@ -1,0 +1,76 @@
+// Sistema de Vendas em Axis
+// Demonstra funcionalidades da linguagem
+
+// Função para calcular total de uma venda
+fun calcularTotal(preco: Float, quantidade: Int) -> Float {
+    total := preco * quantidade
+    
+    // Aplicar desconto se total > 100
+    if (total > 100) {
+        desconto := total * 0.1
+        total := total - desconto
+    }
+    
+    return total
+}
+
+// Função para processar vendas de um arquivo CSV
+fun processarVendas(arquivo: String) -> Float {
+    vendas := read_csv(arquivo)
+    totalGeral := 0.0
+    
+    // Iterar sobre cada venda
+    for venda in vendas {
+        preco := float(venda["preco"])
+        quantidade := int(venda["quantidade"])
+        
+        total := calcularTotal(preco, quantidade)
+        totalGeral := totalGeral + total
+        
+        print("Venda:", venda["produto"], "- Total:", total)
+    }
+    
+    return totalGeral
+}
+
+// Função para gerar relatório
+fun gerarRelatorio(vendas: List, arquivoSaida: String) {
+    // Calcular estatísticas
+    totalVendas := len(vendas)
+    valores := []
+    
+    for venda in vendas {
+        preco := float(venda["preco"])
+        quantidade := int(venda["quantidade"])
+        total := calcularTotal(preco, quantidade)
+        valores := valores + [total]
+    }
+    
+    totalGeral := sum(valores)
+    valorMaximo := max(valores)
+    valorMinimo := min(valores)
+    
+    // Criar relatório
+    relatorio := [
+        {"metric": "total_vendas", "value": totalVendas},
+        {"metric": "total_geral", "value": totalGeral},
+        {"metric": "valor_maximo", "value": valorMaximo},
+        {"metric": "valor_minimo", "value": valorMinimo}
+    ]
+    
+    write_csv(arquivoSaida, relatorio)
+    print("Relatório gerado:", arquivoSaida)
+}
+
+// Execução principal
+print("=== Sistema de Vendas Axis ===")
+
+// Processar vendas do arquivo CSV
+totalGeral := processarVendas("dados.csv")
+print("Total Geral das Vendas:", totalGeral)
+
+// Ler dados novamente para gerar relatório
+vendas := read_csv("dados.csv")
+gerarRelatorio(vendas, "relatorio.csv")
+
+print("=== Processamento Concluído ===") 
