@@ -1,11 +1,5 @@
-produto,preco,quantidade
-Notebook,2500.00,2
-Mouse,45.50,10
-Teclado,120.00,5
-Monitor,800.00,3
-Headset,150.00,8
-Webcam,200.00,4
-Impressora,450.00,2
-Tablet,1200.00,1
-Smartphone,1800.00,3
-Carregador,25.00,15 
+produto,preco
+Notebook,3500
+Celular,2200
+Fone,199
+Monitor,800

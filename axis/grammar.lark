@@ -1,77 +1,28 @@
-// Gramática da linguagem Axis
-// Inspirada em Python, Kotlin e Go
+start: statement+
 
-start: statement*
+?statement: assign
+          | expr
+          | plot_stmt
+          | print_stmt
 
-statement: assignment
-         | if_statement
-         | for_statement
-         | while_statement
-         | function_declaration
-         | return_statement
-         | expression_statement
-         | block
+assign: NAME "=" expr
+plot_stmt: "plot" "(" NAME "." NAME ")"
+print_stmt: "print" "(" STRING "," expr ")"
 
-assignment: IDENTIFIER "=" expression
-          | IDENTIFIER ":=" expression
+?expr: value
+     | NAME
+     | NAME "(" [args] ")"     -> func_call
+     | NAME "." NAME "(" [args] ")" -> method_call
+     | NAME "==" value
 
-if_statement: "if" "(" expression ")" block ("else" block)?
 
-for_statement: "for" "(" assignment ";" expression ";" assignment ")" block
-             | "for" IDENTIFIER "in" expression block
+?args: expr ("," expr)*
 
-while_statement: "while" "(" expression ")" block
+value: STRING -> string
+     | SIGNED_NUMBER   -> number
 
-function_declaration: "fun" IDENTIFIER "(" parameters? ")" ("->" type)? block
-
-parameters: parameter ("," parameter)*
-
-parameter: IDENTIFIER ":" type
-
-return_statement: "return" expression?
-
-expression_statement: expression
-
-block: "{" statement* "}"
-
-expression: logical_or
-
-logical_or: logical_and ("||" logical_and)*
-
-logical_and: equality ("&&" equality)*
-
-equality: comparison (("==" | "!=") comparison)*
-
-comparison: term (("<" | ">" | "<=" | ">=") term)*
-
-term: factor (("+" | "-") factor)*
-
-factor: unary (("*" | "/" | "%") unary)*
-
-unary: ("!" | "-") unary
-      | primary
-
-primary: NUMBER
-       | STRING
-       | IDENTIFIER
-       | "(" expression ")"
-       | function_call
-
-function_call: IDENTIFIER "(" arguments? ")"
-
-arguments: expression ("," expression)*
-
-type: "Int" | "String" | "Bool" | "Float"
-
-// Tokens
-IDENTIFIER: /[a-zA-Z_][a-zA-Z0-9_]*/
-NUMBER: /[0-9]+(\.[0-9]+)?/
-STRING: /"[^"]*"/
-
-// Ignorar espaços em branco
+%import common.CNAME -> NAME
+%import common.ESCAPED_STRING -> STRING
+%import common.SIGNED_NUMBER
 %import common.WS
 %ignore WS
-
-%import common.NEWLINE
-COMMENT: /\/\/[^\n]*/
-%ignore COMMENT 
