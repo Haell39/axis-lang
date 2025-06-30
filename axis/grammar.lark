@@ -11,18 +11,26 @@ print_stmt: "print" "(" STRING "," expr ")"
 
 ?expr: value
      | NAME
-     | NAME "(" [args] ")"     -> func_call
-     | NAME "." NAME "(" [args] ")" -> method_call
+     | func_call
+     | method_call
+     | index
+     | attr_access
      | NAME "==" value
 
+func_call: NAME "(" [args] ")"
+method_call: NAME "." NAME "(" [args] ")"
+attr_access: NAME "." NAME                  -> attr_access
+index: (method_call | attr_access) "[" expr "]"
 
 ?args: expr ("," expr)*
 
 value: STRING -> string
-     | SIGNED_NUMBER   -> number
+     | SIGNED_NUMBER -> number
+     | INT -> number
 
 %import common.CNAME -> NAME
 %import common.ESCAPED_STRING -> STRING
 %import common.SIGNED_NUMBER
 %import common.WS
 %ignore WS
+%import common.INT

@@ -15,6 +15,9 @@ class AxisInterpreter(Visitor):
         self.env[var_name] = self.eval_expr(expr)
 
     def eval_expr(self, expr):
+        if expr is None or not hasattr(expr, "data"):
+            return None
+
         if expr.data == "value":
             val = expr.children[0]
             return eval(val.value)
@@ -27,20 +30,30 @@ class AxisInterpreter(Visitor):
 
         elif expr.data == "expr":
             if len(expr.children) == 1:
-                return self.env[expr.children[0].value]
+                name = expr.children[0].value
+                return self.env.get(name)
 
         elif expr.data == "func_call":
             func_name = expr.children[0].value
-            args = [self.eval_expr(arg) for arg in expr.children[1:]]
+            args = [self.eval_expr(arg) for arg in expr.children[1:] if arg is not None]
             if func_name == "read_csv":
                 return pd.read_csv(*args)
 
         elif expr.data == "method_call":
             var = expr.children[0].value
             method = expr.children[1].value
-            args = [self.eval_expr(arg) for arg in expr.children[2:]]
+            args = [self.eval_expr(arg) for arg in expr.children[2:] if arg is not None]
             return getattr(self.env[var], method)(*args)
 
+        elif expr.data == "attr_access":
+            var = expr.children[0].value
+            attr = expr.children[1].value
+            return getattr(self.env[var], attr)
+
+        elif expr.data == "index":
+            base = self.eval_expr(expr.children[0])
+            idx = self.eval_expr(expr.children[1])
+            return base[int(idx)]
 
     def plot_stmt(self, tree):
         var = tree.children[0].value
